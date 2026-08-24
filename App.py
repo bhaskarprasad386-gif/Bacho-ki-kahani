@@ -806,6 +806,54 @@ else:
     st.info(
         "अभी कोई saved story नहीं है।"
     )
+# ============================================================
+# WHATSAPP SHARE
+# ============================================================
+
+import urllib.parse
+
+app_url = st.context.url
+
+share_message = f"""
+🌈 Bal Kahani 🌈
+
+बच्चों के लिए AI से प्यारी-प्यारी कहानियाँ बनाइए 📖🎙️
+
+👦👧 5 Characters
+🎙️ अलग-अलग Character Voices
+🌙 Bedtime Stories
+❤️ Moral Stories
+
+👉 पूरी App यहाँ खोलें:
+{app_url}
+"""
+
+whatsapp_link = (
+    "https://wa.me/?text="
+    + urllib.parse.quote(share_message)
+)
+
+st.markdown(
+    f"""
+    <a href="{whatsapp_link}"
+       target="_blank"
+       style="
+       display:block;
+       text-align:center;
+       background:#25D366;
+       color:white;
+       padding:16px;
+       border-radius:18px;
+       font-size:21px;
+       font-weight:bold;
+       text-decoration:none;
+       margin:15px 0;
+       ">
+       📲 WhatsApp पर पूरी App Share करें
+    </a>
+    """,
+    unsafe_allow_html=True
+)
 
 
 # ============================================================
@@ -832,3 +880,5 @@ color:#587080;
 
 </div>
 """, unsafe_allow_html=True)
+
+
