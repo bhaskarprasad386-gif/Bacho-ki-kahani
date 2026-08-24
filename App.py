@@ -223,12 +223,34 @@ for i in range(5):
             key=f"role_{i}"
         )
 
-        if name.strip():
+                voice_type = st.selectbox(
+            "🎙️ आवाज़ चुनें",
+            [
+                "👦 छोटा बच्चा",
+                "👧 छोटी बच्ची",
+                "👨 पुरुष",
+                "👩 महिला",
+                "👴 दादा जी",
+                "👵 दादी जी",
+                "🐰 मजेदार आवाज़",
+                "🐘 भारी आवाज़",
+                "🤖 Robot",
+                "🎭 Cartoon"
+            ],
+            key=f"voice_type_{i}"
+        )
+                if name.strip():
             characters.append({
                 "name": name.strip(),
                 "age": age,
-                "role": role
+                "role": role,
+                "voice_type": voice_type
             })
+            
+                
+                
+                
+
 
 st.markdown("</div>", unsafe_allow_html=True)
 
