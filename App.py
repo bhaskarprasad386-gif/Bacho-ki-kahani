@@ -763,67 +763,242 @@ if st.session_state.story:
 
 
     # ========================================================
-    # TTS
-    # ========================================================
+# MULTI CHARACTER VOICE - EDGE TTS
+# ========================================================
 
-    st.markdown("## 🔊 कहानी सुनें")
+VOICE_MAP = {
+    "👦 छोटा बच्चा": {
+        "voice": "hi-IN-MadhurNeural",
+        "rate": "+15%",
+        "pitch": "+8Hz"
+    },
 
-    voice_language = st.selectbox(
-        "🎙️ Voice",
-        [
-            ("हिंदी", "hi"),
-            ("English", "en"),
-            ("বাংলা", "bn"),
-            ("मराठी", "mr"),
-            ("ગુજરાતી", "gu")
-        ],
-        format_func=lambda x: x[0]
+    "👧 छोटी बच्ची": {
+        "voice": "hi-IN-SwaraNeural",
+        "rate": "+12%",
+        "pitch": "+10Hz"
+    },
+
+    "👨 पुरुष": {
+        "voice": "hi-IN-MadhurNeural",
+        "rate": "+0%",
+        "pitch": "+0Hz"
+    },
+
+    "👩 महिला": {
+        "voice": "hi-IN-SwaraNeural",
+        "rate": "+0%",
+        "pitch": "+0Hz"
+    },
+
+    "👴 दादा जी": {
+        "voice": "hi-IN-MadhurNeural",
+        "rate": "-18%",
+        "pitch": "-8Hz"
+    },
+
+    "👵 दादी जी": {
+        "voice": "hi-IN-SwaraNeural",
+        "rate": "-15%",
+        "pitch": "-5Hz"
+    },
+
+    "🐰 मजेदार आवाज़": {
+        "voice": "hi-IN-SwaraNeural",
+        "rate": "+20%",
+        "pitch": "+15Hz"
+    },
+
+    "🐘 भारी आवाज़": {
+        "voice": "hi-IN-MadhurNeural",
+        "rate": "-20%",
+        "pitch": "-12Hz"
+    },
+
+    "🤖 Robot": {
+        "voice": "hi-IN-MadhurNeural",
+        "rate": "-5%",
+        "pitch": "-15Hz"
+    },
+
+    "🎭 Cartoon": {
+        "voice": "hi-IN-SwaraNeural",
+        "rate": "+18%",
+        "pitch": "+12Hz"
+    }
+}
+
+
+async def make_voice(text, voice, rate, pitch):
+
+    communicate = edge_tts.Communicate(
+        text,
+        voice,
+        rate=rate,
+        pitch=pitch
     )
 
+    audio = bytearray()
 
-    if st.button(
-        "🔊 Text to Speech चलाएँ",
-        use_container_width=True
-    ):
+    async for chunk in communicate.stream():
+
+        if chunk["type"] == "audio":
+            audio.extend(chunk["data"])
+
+    return bytes(audio)
+
+
+def create_multi_voice_audio(story_text, characters):
+
+    voice_lookup = {}
+
+    for character in characters:
+
+        voice_type = character.get(
+            "voice_type",
+            "👨 पुरुष"
+        )
+
+        if voice_type in VOICE_MAP:
+
+            voice_lookup[
+                character["name"].strip().lower()
+            ] = VOICE_MAP[voice_type]
+
+
+    lines = story_text.splitlines()
+
+    final_audio = bytearray()
+
+    for line in lines:
+
+        line = line.strip()
+
+        if not line:
+            continue
+
+        speaker = None
+        dialogue = line
+
+        # ----------------------------------------
+        # Character dialogue
+        # ----------------------------------------
+
+        if line.startswith("[") and "]" in line:
+
+            end = line.find("]")
+
+            speaker = line[1:end].strip()
+
+            dialogue = line[end + 1:].strip()
+
+        # ----------------------------------------
+        # Narrator
+        # ----------------------------------------
+
+        if speaker:
+
+            speaker_key = speaker.lower()
+
+            voice_data = voice_lookup.get(
+                speaker_key
+            )
+
+        else:
+
+            voice_data = None
+
+        # ----------------------------------------
+        # Default narrator voice
+        # ----------------------------------------
+
+        if voice_data is None:
+
+            voice_data = {
+                "voice": "hi-IN-SwaraNeural",
+                "rate": "-5%",
+                "pitch": "0Hz"
+            }
+
+        # ----------------------------------------
+        # Generate audio
+        # ----------------------------------------
+
+        audio_part = asyncio.run(
+            make_voice(
+                dialogue,
+                voice_data["voice"],
+                voice_data["rate"],
+                voice_data["pitch"]
+            )
+        )
+
+        final_audio.extend(audio_part)
+
+    return bytes(final_audio)
+
+
+# ========================================================
+# VOICE UI
+# ========================================================
+
+st.markdown("## 🔊 कहानी सुनें")
+
+st.info(
+    "🎙️ हर character की चुनी हुई आवाज़ के अनुसार कहानी सुनाई जाएगी।"
+)
+
+if st.button(
+    "🎙️ अलग-अलग Character Voices में कहानी सुनाएँ",
+    use_container_width=True
+):
+
+    if not st.session_state.story:
+
+        st.warning(
+            "पहले कहानी बनाइए।"
+        )
+
+    else:
 
         with st.spinner(
-            "🎙️ आवाज तैयार हो रही है..."
+            "🎙️ अलग-अलग आवाज़ें तैयार हो रही हैं..."
         ):
 
             try:
 
-                audio_buffer = io.BytesIO()
-
-                tts = gTTS(
-                    text=st.session_state.story,
-                    lang=voice_language[1],
-                    slow=bedtime
+                audio_data = create_multi_voice_audio(
+                    st.session_state.story,
+                    characters
                 )
 
-                tts.write_to_fp(
-                    audio_buffer
-                )
+                st.session_state.audio = audio_data
 
-                st.session_state.audio = (
-                    audio_buffer.getvalue()
+                st.success(
+                    "🎉 अलग-अलग character voices तैयार हैं!"
                 )
 
             except Exception as e:
 
                 st.error(
-                    f"TTS में समस्या: {e}"
+                    f"Voice बनाने में समस्या: {e}"
                 )
 
 
-    if st.session_state.audio:
+if st.session_state.audio:
 
-        st.audio(
-            st.session_state.audio,
-            format="audio/mp3"
-        )
+    st.audio(
+        st.session_state.audio,
+        format="audio/mp3"
+    )
 
-        st.download_button(
-            "⬇️ Audio Save करें",
+    st.download_button(
+        "⬇️ Audio Save करें",
+        data=st.session_state.audio,
+        file_name="bal_kahani_multi_voice.mp3",
+        mime="audio/mpeg",
+        use_container_width=True
+    )
             data=st.session_state.audio,
             file_name="bal_kahani.mp3",
             mime="audio/mpeg",
