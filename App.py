@@ -1,6 +1,8 @@
 import streamlit as st
 from google import genai
 from gtts import gTTS
+import edge_tts
+import asyncio
 from datetime import datetime
 import io
 
