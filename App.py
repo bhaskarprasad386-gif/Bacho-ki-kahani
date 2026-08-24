@@ -199,14 +199,14 @@ VOICE_MAP = {
 
     "👨 पुरुष": {
         "voice": "hi-IN-MadhurNeural",
-        "rate": "0%",
-        "pitch": "0Hz"
+        "rate": "+0%",
+        "pitch": "+0Hz"
     },
 
     "👩 महिला": {
         "voice": "hi-IN-SwaraNeural",
-        "rate": "0%",
-        "pitch": "0Hz"
+        "rate": "+0%",
+        "pitch": "+0Hz"
     },
 
     "👴 दादा जी": {
@@ -825,7 +825,7 @@ def create_multi_voice_audio(
     narrator_voice = {
         "voice": "hi-IN-SwaraNeural",
         "rate": "-5%",
-        "pitch": "0Hz"
+        "pitch": "+0Hz"
     }
 
 
