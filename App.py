@@ -1,302 +1,8 @@
-
-हाँ। अब वास्तव में अलग-अलग आवाज़ चाहिए तो gTTS से नहीं होगा। gTTS में अलग character voices का control बहुत सीमित है।
-
-हम Edge TTS लगाएंगे, जिसमें अलग-अलग वास्तविक neural voices मिलेंगी, जैसे:
-
-👦 बच्चा — अलग voice
-
-👧 बच्ची — अलग voice
-
-👨 पुरुष — अलग voice
-
-👩 महिला — अलग voice
-
-👴 दादा — अलग आवाज़/धीमी pitch
-
-👵 दादी — अलग आवाज़/धीमी pitch
-
-और हर character के लिए अलग voice चुनने का option रहेगा।
-
-पहले यह करें
-आपकी requirements.txt में अभी:
-
-streamlit>=1.40.0
-google-genai>=1.0.0
-Pillow>=10.0.0
-gTTS>=2.5.0
-इसे बदलकर यह करें:
-
-streamlit>=1.40.0
-google-genai>=1.0.0
-Pillow>=10.0.0
-gTTS>=2.5.0
-edge-tts>=7.0.0
-पहले सिर्फ edge-tts>=7.0.0 जोड़कर Commit करें।
-
-उसके बाद मैं आपको अगला पूरा TTS code दूँगा, जिसमें चुनी हुई character voice सच में audio में इस्तेमाल होगी।
-
-
-Mtlb alag alag awaz me bolega
-
-हाँ, सही तरीके से लगाने पर अलग-अलग character अलग-अलग आवाज़ में बोलेंगे। 👍
-
-उदाहरण कहानी:
-
-राहुल: “दादा जी, आज हम जंगल चलें?”
-दादा जी: “हाँ बेटा, लेकिन मेरे साथ रहना।”
-पिंकी: “मैं भी चलूँगी!”
-
-Audio में:
-
-🎙️ राहुल → बच्चे की आवाज़
-🎙️ दादा जी → बुजुर्ग पुरुष जैसी आवाज़
-🎙️ पिंकी → बच्ची की आवाज़
-
-यानी पूरी कहानी एक ही आवाज़ में नहीं चलेगी।
-
-लेकिन इसके लिए हमें अभी आपके gTTS वाले पूरे TTS सिस्टम को बदलना होगा और कहानी को character के dialogue के हिसाब से अलग-अलग audio segments में बनाकर जोड़ना होगा।
-
-आपने edge-tts requirements में जोड़ दिया है तो अब अगला बदलाव यही TTS वाला करेंगे।
-
-
-File "/mount/src/bacho-ki-kahani/App.py", line 210
-                  role = st.selectbox(
-                 ^
-IndentationError: unexpected indent
-
-हाँ, अभी voice का काम रोकिए। पहले line 210 का indentation ठीक करना है। सबसे सुरक्षित तरीका है पूरा Characters section replace करना।
-
-क्या करें
-App.py में:
-
-# ============================================================
-# CHARACTERS
-# ============================================================
-से लेकर इस line तक:
-
-st.markdown("</div>", unsafe_allow_html=True)
-पूरा हटाएँ।
-
-फिर यह पूरा code एक बार में paste करें:
-
-# ============================================================
-# CHARACTERS
-# ============================================================
-
-st.markdown('<div class="card">', unsafe_allow_html=True)
-
-st.markdown("## 👨‍👩‍👧‍👦 कहानी के पात्र")
-
-st.caption("अधिकतम 5 पात्र जोड़ सकते हैं।")
-
-characters = []
-
-cols = st.columns(5)
-
-for i in range(5):
-
-    with cols[i]:
-
-        st.markdown(
-            f"### {'👦' if i % 2 == 0 else '👧'} {i + 1}"
-        )
-
-        name = st.text_input(
-            "नाम",
-            placeholder="नाम",
-            key=f"name_{i}"
-        )
-
-        age = st.selectbox(
-            "उम्र",
-            [
-                "2-3 साल",
-                "4-5 साल",
-                "6-7 साल",
-                "8-10 साल",
-                "11-13 साल",
-                "15-20 साल",
-                "25-30 साल",
-                "30-35 साल",
-                "40-50 साल",
-                "50-60 साल",
-                "60-70 साल",
-                "70+ साल"
-            ],
-            key=f"age_{i}"
-        )
-
-        role = st.selectbox(
-            "पात्र",
-            [
-                "बच्चा",
-                "बच्ची",
-                "माँ",
-                "पिता",
-                "दादा",
-                "दादी",
-                "दोस्त",
-                "शिक्षक",
-                "जानवर"
-            ],
-            key=f"role_{i}"
-        )
-
-        voice_type = st.selectbox(
-            "🎙️ आवाज़ चुनें",
-            [
-                "👦 छोटा बच्चा",
-                "👧 छोटी बच्ची",
-                "👨 पुरुष",
-                "👩 महिला",
-                "👴 दादा जी",
-                "👵 दादी जी",
-                "🐰 मजेदार आवाज़",
-                "🐘 भारी आवाज़",
-                "🤖 Robot",
-                "🎭 Cartoon"
-            ],
-            key=f"voice_type_{i}"
-        )
-
-        if name.strip():
-
-            characters.append({
-                "name": name.strip(),
-                "age": age,
-                "role": role,
-                "voice_type": voice_type
-            })
-
-st.markdown("</div>", unsafe_allow_html=True)
-फिर
-Save/Commit → app reload करें।
-
-अभी TTS वाला code बिल्कुल मत छेड़िए।
-
-अगर error फिर भी आए, तो line 200–230 का screenshot भेज दें। मैं उसी line को ठीक कर दूँगा।
-
-
-
-Pasted text(3).txt
-Document
-
-हाँ, मैंने आपका पूरा uploaded code देख लिया है। 
-
-
-अभी code में कई जगह indentation और duplicate TTS code की समस्या है। खासकर:
-
-role = st.selectbox(...) में extra indentation है।
-
-MULTI CHARACTER VOICE वाला section if st.session_state.story: के अंदर/बाहर गलत जगह है।
-
-नीचे data=st.session_state.audio... वाला पुराना हिस्सा दोबारा बच गया है।
-
-इसलिए अभी इसे थोड़ा-थोड़ा ठीक करने से फिर error आने की संभावना है।
-
-सबसे अच्छा तरीका: मैं आपके इसी पूरे code को साफ करके एक पूरा corrected App.py बना दूँ, जिसमें:
-
-5 characters
-
-उम्र 70+ तक
-
-हर character का अलग voice option
-
-Edge TTS
-
-dialogue के हिसाब से अलग-अलग आवाज़
-
-Khortha सहित languages
-
-कहानी save
-
-WhatsApp share
-
-Google Analytics
-
-सब एक साथ सही indentation के साथ रहेगा।
-
-अगर आप चाहें तो मैं पूरा final code एक ही बार में दे देता हूँ, जिसे पुराने App.py की जगह पूरा paste करना होगा।
-
-
-Bahoot jaruri wla kaise kre
-
-हाँ। आपके uploaded code को देखकर सबसे जरूरी बदलाव ये हैं:
-
-🔴 सबसे पहले यही 3 चीजें ठीक करनी हैं
-1. role = st.selectbox की indentation
-अभी extra spaces हैं, इसी से IndentationError आ रहा है। 
-
-
-2. पुराना TTS code हटाना जरूरी है
-आपके code में नया Edge TTS लगाने के बाद भी पुराना data=st.session_state.audio... वाला हिस्सा बचा हुआ है। इसे हटाना जरूरी है। 
-
-
-3. Gemini prompt में character dialogue format जोड़ना जरूरी है
-अलग-अलग आवाज़ तभी सही character पर लगेगी जब कहानी में dialogue इस तरह आए:
-
-[NARRATOR]: राहुल जंगल की ओर गया।
-
-[राहुल]: दादा जी, मैं आपके साथ चलूँगा।
-
-[दादा जी]: ठीक है बेटा।
-🟢 बाकी चीजें अभी मत छेड़िए
-Language, WhatsApp, Analytics, Saved Story आदि अभी ठीक रहने दें।
-
-मेरी सलाह: आपके current code में जगह-जगह हाथ से बदलाव करने के बजाय मैं पूरा corrected final App.py दूँ। इससे indentation और duplicate TTS वाली समस्या एक साथ खत्म हो जाएगी।
-
-
-Pura ek compleye code banao
-
-हाँ। मैंने आपका पूरा corrected App.py बना दिया है। इसमें आपके पुराने code की indentation और duplicate TTS वाली समस्या भी हटा दी गई है।
-
-पूरा App.py डाउनलोड करें
-
-इसमें शामिल है
-5 Characters
-
-उम्र 70+ साल तक
-
-हर character के लिए 🎙️ अलग voice option
-
-Edge TTS
-
-Character dialogue के अनुसार अलग आवाज़
-
-Khortha सहित languages
-
-Gemini story generation
-
-Saved Stories
-
-WhatsApp Share
-
-Google Analytics
-
-Bedtime Mode
-
-जरूरी: requirements.txt में यह line भी होनी चाहिए:
-
-edge-tts>=7.0.0
-और इस बार पुराने App.py में नीचे-नीचे code जोड़ने के बजाय पूरा पुराना App.py हटाकर यह नया वाला पूरा paste करें। 
-
-
-App.py
-Code
-
-
-No file chosen
-Library
-/
-App.py
-
-
 import streamlit as st
 from google import genai
 import edge_tts
 import asyncio
 from datetime import datetime
-import io
 import urllib.parse
 import streamlit.components.v1 as components
 
@@ -321,10 +27,17 @@ GA_ID = st.secrets.get("GA_MEASUREMENT_ID", "")
 if GA_ID:
     components.html(
         f"""
-        <script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
+        <script async
+        src="https://www.googletagmanager.com/gtag/js?id={GA_ID}">
+        </script>
+
         <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag() {{ dataLayer.push(arguments); }}
+
+        function gtag() {{
+            dataLayer.push(arguments);
+        }}
+
         gtag('js', new Date());
         gtag('config', '{GA_ID}');
         </script>
@@ -337,17 +50,20 @@ if GA_ID:
 # SESSION STATE
 # ============================================================
 
-defaults = {
-    "story": "",
-    "story_title": "",
-    "story_data": {},
-    "saved_stories": [],
-    "audio": None,
-}
+if "story" not in st.session_state:
+    st.session_state.story = ""
 
-for key, value in defaults.items():
-    if key not in st.session_state:
-        st.session_state[key] = value
+if "story_title" not in st.session_state:
+    st.session_state.story_title = ""
+
+if "story_data" not in st.session_state:
+    st.session_state.story_data = {}
+
+if "saved_stories" not in st.session_state:
+    st.session_state.saved_stories = []
+
+if "audio" not in st.session_state:
+    st.session_state.audio = None
 
 
 # ============================================================
@@ -356,6 +72,7 @@ for key, value in defaults.items():
 
 st.markdown("""
 <style>
+
 .stApp {
     background: linear-gradient(
         180deg,
@@ -410,6 +127,7 @@ st.markdown("""
     border-radius: 20px;
     border: 2px solid #ffb0b0;
 }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -420,6 +138,7 @@ st.markdown("""
 
 st.markdown("""
 <div class="card">
+
 <div style="text-align:center;font-size:65px;">
 ☀️ ☁️ 🐰 🌳 🌸 🏠 🦋 🐘
 </div>
@@ -431,12 +150,13 @@ st.markdown("""
 <div class="subtitle">
 बच्चों के लिए अपनी प्यारी कहानी बनाइए 📖
 </div>
+
 </div>
 """, unsafe_allow_html=True)
 
 
 # ============================================================
-# API KEY
+# GEMINI API KEY
 # ============================================================
 
 try:
@@ -446,7 +166,7 @@ except Exception:
 
 
 # ============================================================
-# VOICE OPTIONS
+# CHARACTER VOICES
 # ============================================================
 
 VOICE_OPTIONS = [
@@ -459,62 +179,71 @@ VOICE_OPTIONS = [
     "🐰 मजेदार आवाज़",
     "🐘 भारी आवाज़",
     "🤖 Robot",
-    "🎭 Cartoon",
+    "🎭 Cartoon"
 ]
 
-# Available Hindi neural voices are reused with different
-# rate/pitch so the selected character styles sound different.
+
 VOICE_MAP = {
+
     "👦 छोटा बच्चा": {
         "voice": "hi-IN-MadhurNeural",
         "rate": "+15%",
-        "pitch": "+8Hz",
+        "pitch": "+8Hz"
     },
+
     "👧 छोटी बच्ची": {
         "voice": "hi-IN-SwaraNeural",
         "rate": "+12%",
-        "pitch": "+10Hz",
+        "pitch": "+10Hz"
     },
+
     "👨 पुरुष": {
         "voice": "hi-IN-MadhurNeural",
-        "rate": "+0%",
-        "pitch": "+0Hz",
+        "rate": "0%",
+        "pitch": "0Hz"
     },
+
     "👩 महिला": {
         "voice": "hi-IN-SwaraNeural",
-        "rate": "+0%",
-        "pitch": "+0Hz",
+        "rate": "0%",
+        "pitch": "0Hz"
     },
+
     "👴 दादा जी": {
         "voice": "hi-IN-MadhurNeural",
         "rate": "-18%",
-        "pitch": "-8Hz",
+        "pitch": "-8Hz"
     },
+
     "👵 दादी जी": {
         "voice": "hi-IN-SwaraNeural",
         "rate": "-15%",
-        "pitch": "-5Hz",
+        "pitch": "-5Hz"
     },
+
     "🐰 मजेदार आवाज़": {
         "voice": "hi-IN-SwaraNeural",
         "rate": "+20%",
-        "pitch": "+15Hz",
+        "pitch": "+15Hz"
     },
+
     "🐘 भारी आवाज़": {
         "voice": "hi-IN-MadhurNeural",
         "rate": "-20%",
-        "pitch": "-12Hz",
+        "pitch": "-12Hz"
     },
+
     "🤖 Robot": {
         "voice": "hi-IN-MadhurNeural",
         "rate": "-5%",
-        "pitch": "-15Hz",
+        "pitch": "-15Hz"
     },
+
     "🎭 Cartoon": {
         "voice": "hi-IN-SwaraNeural",
         "rate": "+18%",
-        "pitch": "+12Hz",
-    },
+        "pitch": "+12Hz"
+    }
 }
 
 
@@ -522,16 +251,26 @@ VOICE_MAP = {
 # CHARACTERS
 # ============================================================
 
-st.markdown('<div class="card">', unsafe_allow_html=True)
+st.markdown(
+    '<div class="card">',
+    unsafe_allow_html=True
+)
 
 st.markdown("## 👨‍👩‍👧‍👦 कहानी के पात्र")
-st.caption("अधिकतम 5 पात्र जोड़ सकते हैं। हर पात्र की अलग आवाज़ चुन सकते हैं।")
+
+st.caption(
+    "अधिकतम 5 पात्र जोड़ सकते हैं। "
+    "हर पात्र के लिए अलग आवाज़ चुनें।"
+)
 
 characters = []
+
 cols = st.columns(5)
 
 for i in range(5):
+
     with cols[i]:
+
         st.markdown(
             f"### {'👦' if i % 2 == 0 else '👧'} {i + 1}"
         )
@@ -557,7 +296,7 @@ for i in range(5):
                 "41-50 साल",
                 "51-60 साल",
                 "61-70 साल",
-                "70+ साल",
+                "70+ साल"
             ],
             key=f"age_{i}"
         )
@@ -574,7 +313,7 @@ for i in range(5):
                 "दोस्त",
                 "शिक्षक",
                 "जानवर",
-                "अन्य",
+                "अन्य"
             ],
             key=f"role_{i}"
         )
@@ -586,27 +325,38 @@ for i in range(5):
         )
 
         if name.strip():
-            characters.append({
-                "name": name.strip(),
-                "age": age,
-                "role": role,
-                "voice_type": voice_type,
-            })
 
-st.markdown("</div>", unsafe_allow_html=True)
+            characters.append(
+                {
+                    "name": name.strip(),
+                    "age": age,
+                    "role": role,
+                    "voice_type": voice_type
+                }
+            )
+
+st.markdown(
+    "</div>",
+    unsafe_allow_html=True
+)
 
 
 # ============================================================
 # STORY SETTINGS
 # ============================================================
 
-st.markdown('<div class="card">', unsafe_allow_html=True)
+st.markdown(
+    '<div class="card">',
+    unsafe_allow_html=True
+)
 
 st.markdown("## 📖 कहानी की जानकारी")
 
 c1, c2, c3 = st.columns(3)
 
+
 with c1:
+
     story_type = st.selectbox(
         "🎭 कहानी का प्रकार",
         [
@@ -622,11 +372,13 @@ with c1:
             "सोने की कहानी",
             "दोस्ती की कहानी",
             "प्रकृति की कहानी",
-            "अंतरिक्ष की कहानी",
+            "अंतरिक्ष की कहानी"
         ]
     )
 
+
 with c2:
+
     story_length = st.selectbox(
         "⏱️ कहानी की लंबाई",
         [
@@ -634,11 +386,13 @@ with c2:
             "5 मिनट",
             "10 मिनट",
             "15 मिनट",
-            "20 मिनट",
+            "20 मिनट"
         ]
     )
 
+
 with c3:
+
     language = st.selectbox(
         "🌐 भाषा",
         [
@@ -658,20 +412,26 @@ with c3:
             "ଓଡ଼ିଆ (Odia)",
             "অসমীয়া (Assamese)",
             "नेपाली (Nepali)",
-            "اردو (Urdu)",
+            "اردو (Urdu)"
         ]
     )
+
 
 conditions = st.text_area(
     "🧠 कहानी में क्या-क्या होना चाहिए?",
     placeholder=(
-        "उदाहरण: कहानी में राहुल, एक खरगोश, एक बड़ा पेड़, "
-        "फूल और एक छोटा घर होना चाहिए। अंत में राहुल को अच्छी सीख मिलनी चाहिए।"
+        "उदाहरण: कहानी में राहुल, एक खरगोश, "
+        "एक बड़ा पेड़, फूल और एक छोटा घर होना चाहिए। "
+        "अंत में राहुल को अच्छी सीख मिलनी चाहिए।"
     ),
     height=120
 )
 
-st.markdown("</div>", unsafe_allow_html=True)
+
+st.markdown(
+    "</div>",
+    unsafe_allow_html=True
+)
 
 
 # ============================================================
@@ -680,8 +440,14 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 c1, c2 = st.columns(2)
 
+
 with c1:
-    st.markdown('<div class="good">', unsafe_allow_html=True)
+
+    st.markdown(
+        '<div class="good">',
+        unsafe_allow_html=True
+    )
+
     st.markdown("### ❤️ अच्छी आदतें")
 
     good_habits = st.multiselect(
@@ -704,13 +470,23 @@ with c1:
             "क्रिकेट खेलना",
             "फुटबॉल खेलना",
             "बैडमिंटन खेलना",
-            "दौड़ना",
+            "दौड़ना"
         ]
     )
-    st.markdown("</div>", unsafe_allow_html=True)
+
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True
+    )
+
 
 with c2:
-    st.markdown('<div class="bad">', unsafe_allow_html=True)
+
+    st.markdown(
+        '<div class="bad">',
+        unsafe_allow_html=True
+    )
+
     st.markdown("### 🚫 क्या नहीं करना चाहिए")
 
     bad_habits = st.multiselect(
@@ -727,23 +503,33 @@ with c2:
             "बिना बताए बाहर जाना",
             "बहुत देर मोबाइल चलाना",
             "गाली देना",
-            "चोरी करना",
+            "चोरी करना"
         ]
     )
-    st.markdown("</div>", unsafe_allow_html=True)
+
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True
+    )
 
 
 # ============================================================
 # BEDTIME
 # ============================================================
 
-st.markdown('<div class="card">', unsafe_allow_html=True)
+st.markdown(
+    '<div class="card">',
+    unsafe_allow_html=True
+)
 
 st.markdown("## 🌙 Bedtime Mode")
 
-bedtime = st.toggle("🌙 सोने वाली शांत कहानी")
+bedtime = st.toggle(
+    "🌙 सोने वाली शांत कहानी"
+)
 
 if bedtime:
+
     music = st.selectbox(
         "🎵 Music mood",
         [
@@ -751,13 +537,19 @@ if bedtime:
             "Rain",
             "Forest Night",
             "Ocean",
-            "Soft Piano",
+            "Soft Piano"
         ]
     )
+
 else:
+
     music = "None"
 
-st.markdown("</div>", unsafe_allow_html=True)
+
+st.markdown(
+    "</div>",
+    unsafe_allow_html=True
+)
 
 
 # ============================================================
@@ -765,31 +557,59 @@ st.markdown("</div>", unsafe_allow_html=True)
 # ============================================================
 
 def generate_story():
+
     if not API_KEY:
+
         raise Exception(
-            "GEMINI_API_KEY नहीं मिली। Streamlit Secrets में API key डालें।"
+            "GEMINI_API_KEY नहीं मिली। "
+            "Streamlit Secrets में API key डालें।"
         )
 
-    client = genai.Client(api_key=API_KEY)
+    client = genai.Client(
+        api_key=API_KEY
+    )
 
     if characters:
+
         character_text = "\n".join(
             [
-                f"{x['name']} - {x['age']} - {x['role']} - Voice: {x['voice_type']}"
+                (
+                    f"{x['name']} - "
+                    f"{x['age']} - "
+                    f"{x['role']} - "
+                    f"Voice: {x['voice_type']}"
+                )
                 for x in characters
             ]
         )
-    else:
-        character_text = "कोई नाम नहीं दिया गया।"
 
-    good_text = ", ".join(good_habits) if good_habits else "कोई विशेष नहीं"
-    bad_text = ", ".join(bad_habits) if bad_habits else "कोई विशेष नहीं"
+    else:
+
+        character_text = (
+            "कोई नाम नहीं दिया गया।"
+        )
+
+
+    good_text = (
+        ", ".join(good_habits)
+        if good_habits
+        else "कोई विशेष नहीं"
+    )
+
+    bad_text = (
+        ", ".join(bad_habits)
+        if bad_habits
+        else "कोई विशेष नहीं"
+    )
+
 
     prompt = f"""
 आप Bal Kahani नाम के बच्चों के लिए सुरक्षित AI storyteller हैं।
 
 भाषा: {language}
+
 कहानी का प्रकार: {story_type}
+
 कहानी की लंबाई: {story_length}
 
 पात्र:
@@ -822,14 +642,19 @@ Music mood:
 8. अनावश्यक डर या हिंसा न हो।
 9. कहानी में जानवर, फूल, पेड़, घर आदि तभी डालें जब conditions में हों।
 10. Bedtime mode में कहानी शांत और सुकून देने वाली हो।
-11. संवादों को character के नाम के साथ EXACT इस format में लिखें:
-[पात्र का नाम]: dialogue
-12. Narration को EXACT इस format में लिखें:
+11. हर पात्र का dialogue अलग line में लिखें।
+12. Dialogue का EXACT format यह होना चाहिए:
+
+[पात्र का नाम]: संवाद
+
+13. Narration का EXACT format यह होना चाहिए:
+
 [NARRATOR]: narration
-13. हर dialogue और narration अलग line में हो।
-14. पात्र का नाम वही रखें जो ऊपर दिया गया है।
-15. STORY के अंदर केवल कहानी और narration/dialogue रखें।
-16. Dialogue को natural, बच्चों के लिए आकर्षक और छोटा रखें।
+
+14. पात्र का नाम बिल्कुल वही रखें जो ऊपर दिया गया है।
+15. हर dialogue अलग line में हो।
+16. कहानी के अंदर dialogue और narration दोनों रखें।
+17. कहानी natural और बच्चों के लिए मजेदार हो।
 
 नीचे EXACT format में जवाब दें:
 
@@ -839,7 +664,7 @@ TITLE:
 STORY:
 [NARRATOR]: कहानी की शुरुआत।
 [पात्र का नाम]: संवाद।
-[NARRATOR]: आगे की narration।
+[NARRATOR]: आगे की कहानी।
 [दूसरे पात्र का नाम]: संवाद।
 
 LESSON:
@@ -862,6 +687,7 @@ IMAGE_PROMPT:
 कहानी के लिए children's storybook illustration prompt
 """
 
+
     response = client.models.generate_content(
         model="gemini-3.6-flash",
         contents=prompt
@@ -871,10 +697,11 @@ IMAGE_PROMPT:
 
 
 # ============================================================
-# PARSE
+# PARSE STORY
 # ============================================================
 
 def parse_story(text):
+
     result = {
         "title": "मेरी प्यारी कहानी",
         "story": text,
@@ -882,7 +709,7 @@ def parse_story(text):
         "good": "",
         "avoid": "",
         "scenes": "",
-        "image_prompt": "",
+        "image_prompt": ""
     }
 
     markers = [
@@ -892,27 +719,49 @@ def parse_story(text):
         ("GOOD_HABITS:", "good"),
         ("AVOID:", "avoid"),
         ("SCENES:", "scenes"),
-        ("IMAGE_PROMPT:", "image_prompt"),
+        ("IMAGE_PROMPT:", "image_prompt")
     ]
 
     found = []
 
     for marker, key in markers:
+
         pos = text.find(marker)
+
         if pos != -1:
-            found.append((pos, marker, key))
+
+            found.append(
+                (
+                    pos,
+                    marker,
+                    key
+                )
+            )
+
 
     found.sort()
 
+
     for i, (pos, marker, key) in enumerate(found):
-        start = pos + len(marker)
+
+        start = (
+            pos
+            + len(marker)
+        )
 
         if i + 1 < len(found):
+
             end = found[i + 1][0]
+
         else:
+
             end = len(text)
 
-        result[key] = text[start:end].strip()
+
+        result[key] = (
+            text[start:end].strip()
+        )
+
 
     return result
 
@@ -921,27 +770,43 @@ def parse_story(text):
 # EDGE TTS
 # ============================================================
 
-async def make_voice(text, voice, rate, pitch):
+async def make_voice(
+    text,
+    voice,
+    rate,
+    pitch
+):
+
     communicate = edge_tts.Communicate(
         text=text,
         voice=voice,
         rate=rate,
-        pitch=pitch,
+        pitch=pitch
     )
 
     audio = bytearray()
 
     async for chunk in communicate.stream():
+
         if chunk["type"] == "audio":
-            audio.extend(chunk["data"])
+
+            audio.extend(
+                chunk["data"]
+            )
 
     return bytes(audio)
 
 
-def create_multi_voice_audio(story_text, characters):
+def create_multi_voice_audio(
+    story_text,
+    characters
+):
+
     voice_lookup = {}
 
+
     for character in characters:
+
         voice_type = character.get(
             "voice_type",
             "👨 पुरुष"
@@ -956,78 +821,141 @@ def create_multi_voice_audio(story_text, characters):
             character["name"].strip().lower()
         ] = voice_data
 
-    # Narrator default
+
     narrator_voice = {
         "voice": "hi-IN-SwaraNeural",
         "rate": "-5%",
-        "pitch": "0Hz",
+        "pitch": "0Hz"
     }
 
+
     lines = story_text.splitlines()
+
     audio_parts = []
 
+
     for line in lines:
+
         line = line.strip()
 
         if not line:
             continue
 
+
         speaker = None
+
         dialogue = line
 
-        if line.startswith("[") and "]" in line:
+
+        if (
+            line.startswith("[")
+            and "]" in line
+        ):
+
             end = line.find("]")
-            speaker = line[1:end].strip()
-            dialogue = line[end + 1:].strip()
+
+            speaker = (
+                line[1:end].strip()
+            )
+
+            dialogue = (
+                line[end + 1:].strip()
+            )
+
 
         if not dialogue:
             continue
 
-        if speaker and speaker.lower() in voice_lookup:
-            voice_data = voice_lookup[speaker.lower()]
+
+        if (
+            speaker
+            and speaker.lower()
+            in voice_lookup
+        ):
+
+            voice_data = voice_lookup[
+                speaker.lower()
+            ]
+
         else:
+
             voice_data = narrator_voice
+
 
         audio_part = asyncio.run(
             make_voice(
                 dialogue,
                 voice_data["voice"],
                 voice_data["rate"],
-                voice_data["pitch"],
+                voice_data["pitch"]
             )
         )
 
-        if audio_part:
-            audio_parts.append(audio_part)
 
-    return b"".join(audio_parts)
+        if audio_part:
+
+            audio_parts.append(
+                audio_part
+            )
+
+
+    return b"".join(
+        audio_parts
+    )
 
 
 # ============================================================
 # CREATE STORY BUTTON
 # ============================================================
 
-st.markdown("## ✨ कहानी बनाइए")
+st.markdown(
+    "## ✨ कहानी बनाइए"
+)
+
 
 if st.button(
     "🌈 ✨ अभी कहानी बनाओ ✨ 🌈",
     type="primary",
     use_container_width=True
 ):
-    with st.spinner("🧚 AI आपकी कहानी बना रहा है..."):
-        try:
-            raw = generate_story()
-            data = parse_story(raw)
 
-            st.session_state.story = data["story"]
-            st.session_state.story_title = data["title"]
-            st.session_state.story_data = data
+    with st.spinner(
+        "🧚 AI आपकी कहानी बना रहा है..."
+    ):
+
+        try:
+
+            raw = generate_story()
+
+            data = parse_story(
+                raw
+            )
+
+            st.session_state.story = (
+                data["story"]
+            )
+
+            st.session_state.story_title = (
+                data["title"]
+            )
+
+            st.session_state.story_data = (
+                data
+            )
+
             st.session_state.audio = None
 
-            st.success("🎉 कहानी तैयार है!")
+
+            st.success(
+                "🎉 कहानी तैयार है!"
+            )
+
 
         except Exception as e:
-            st.error(f"कहानी बनाने में समस्या: {e}")
+
+            st.error(
+                f"कहानी बनाने में समस्या: {e}"
+            )
 
 
 # ============================================================
@@ -1035,33 +963,70 @@ if st.button(
 # ============================================================
 
 if st.session_state.story:
-    data = st.session_state.get("story_data", {})
+
+    data = st.session_state.get(
+        "story_data",
+        {}
+    )
+
 
     st.markdown("---")
+
 
     st.markdown(
         f"""
         <div class="card">
-        <div style="text-align:center;font-size:50px;">
+
+        <div style="
+        text-align:center;
+        font-size:50px;
+        ">
         📖 🐰 🌳 🌸 🦋
         </div>
 
-        <h1 style="text-align:center;color:#ff6475;">
+        <h1 style="
+        text-align:center;
+        color:#ff6475;
+        ">
         {st.session_state.story_title}
         </h1>
+
         </div>
         """,
         unsafe_allow_html=True
     )
 
-    st.markdown('<div class="story">', unsafe_allow_html=True)
-    st.markdown(st.session_state.story)
-    st.markdown("</div>", unsafe_allow_html=True)
+
+    st.markdown(
+        '<div class="story">',
+        unsafe_allow_html=True
+    )
+
+
+    st.markdown(
+        st.session_state.story
+    )
+
+
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True
+    )
+
+
+    # ========================================================
+    # LESSON
+    # ========================================================
 
     c1, c2 = st.columns(2)
 
+
     with c1:
-        st.markdown("### ❤️ कहानी से सीख")
+
+        st.markdown(
+            "### ❤️ कहानी से सीख"
+        )
+
         st.info(
             data.get(
                 "lesson",
@@ -1069,8 +1034,13 @@ if st.session_state.story:
             )
         )
 
+
     with c2:
-        st.markdown("### 🌟 अच्छी आदतें")
+
+        st.markdown(
+            "### 🌟 अच्छी आदतें"
+        )
+
         st.success(
             data.get(
                 "good",
@@ -1078,7 +1048,11 @@ if st.session_state.story:
             )
         )
 
-    st.markdown("### 🚫 क्या नहीं करना चाहिए")
+
+    st.markdown(
+        "### 🚫 क्या नहीं करना चाहिए"
+    )
+
     st.warning(
         data.get(
             "avoid",
@@ -1086,7 +1060,15 @@ if st.session_state.story:
         )
     )
 
-    with st.expander("🖼️ कहानी के Visual Scenes देखें"):
+
+    # ========================================================
+    # SCENES
+    # ========================================================
+
+    with st.expander(
+        "🖼️ कहानी के Visual Scenes देखें"
+    ):
+
         st.write(
             data.get(
                 "scenes",
@@ -1094,7 +1076,11 @@ if st.session_state.story:
             )
         )
 
-        st.markdown("### 🎨 Image Prompt")
+
+        st.markdown(
+            "### 🎨 Image Prompt"
+        )
+
 
         st.code(
             data.get(
@@ -1103,80 +1089,114 @@ if st.session_state.story:
             )
         )
 
+
     # ========================================================
-    # MULTI CHARACTER VOICE UI
+    # MULTI CHARACTER VOICE
     # ========================================================
 
-    st.markdown("## 🔊 कहानी सुनें")
+    st.markdown(
+        "## 🔊 कहानी सुनें"
+    )
+
 
     st.info(
-        "🎙️ कहानी के dialogue के अनुसार चुनी हुई character voice इस्तेमाल होगी।"
+        "🎙️ हर character की चुनी हुई आवाज़ के अनुसार "
+        "कहानी सुनाई जाएगी।"
     )
+
 
     if st.button(
         "🎙️ अलग-अलग Character Voices में कहानी सुनाएँ",
         use_container_width=True
     ):
+
         with st.spinner(
             "🎙️ अलग-अलग आवाज़ें तैयार हो रही हैं..."
         ):
+
             try:
-                audio_data = create_multi_voice_audio(
-                    st.session_state.story,
-                    characters
+
+                audio_data = (
+                    create_multi_voice_audio(
+                        st.session_state.story,
+                        characters
+                    )
                 )
 
+
                 if not audio_data:
+
                     raise Exception(
-                        "Audio तैयार नहीं हुआ। कहानी में dialogue format जाँचें।"
+                        "Audio तैयार नहीं हुआ।"
                     )
 
-                st.session_state.audio = audio_data
+
+                st.session_state.audio = (
+                    audio_data
+                )
+
 
                 st.success(
                     "🎉 अलग-अलग character voices तैयार हैं!"
                 )
 
+
             except Exception as e:
+
                 st.error(
                     f"Voice बनाने में समस्या: {e}"
                 )
 
+
     if st.session_state.audio:
+
         st.audio(
             st.session_state.audio,
             format="audio/mp3"
         )
 
+
         st.download_button(
             "⬇️ Audio Save करें",
             data=st.session_state.audio,
             file_name="bal_kahani_multi_voice.mp3",
-            mime="audio/mp3",
+            mime="audio/mpeg",
             use_container_width=True
         )
+
 
     # ========================================================
     # SAVE STORY
     # ========================================================
 
-    st.markdown("## 💾 Saved Story")
+    st.markdown(
+        "## 💾 Saved Story"
+    )
+
 
     if st.button(
         "❤️ कहानी Save करें",
         use_container_width=True
     ):
+
         st.session_state.saved_stories.append(
             {
-                "title": st.session_state.story_title,
-                "story": st.session_state.story,
+                "title": (
+                    st.session_state.story_title
+                ),
+                "story": (
+                    st.session_state.story
+                ),
                 "date": datetime.now().strftime(
                     "%d-%m-%Y %H:%M"
                 )
             }
         )
 
-        st.success("❤️ कहानी Save हो गई!")
+
+        st.success(
+            "❤️ कहानी Save हो गई!"
+        )
 
 
 # ============================================================
@@ -1184,18 +1204,33 @@ if st.session_state.story:
 # ============================================================
 
 st.markdown("---")
-st.markdown("## 📚 मेरी Saved Stories")
+
+st.markdown(
+    "## 📚 मेरी Saved Stories"
+)
+
 
 if st.session_state.saved_stories:
+
     for i, item in enumerate(
-        reversed(st.session_state.saved_stories)
+        reversed(
+            st.session_state.saved_stories
+        )
     ):
+
         with st.expander(
             f"📖 {item['title']} — {item['date']}"
         ):
-            st.write(item["story"])
+
+            st.write(
+                item["story"]
+            )
+
 else:
-    st.info("अभी कोई saved story नहीं है।")
+
+    st.info(
+        "अभी कोई saved story नहीं है।"
+    )
 
 
 # ============================================================
@@ -1203,6 +1238,7 @@ else:
 # ============================================================
 
 app_url = st.context.url
+
 
 share_message = f"""
 🌈 Bal Kahani 🌈
@@ -1218,10 +1254,14 @@ share_message = f"""
 {app_url}
 """
 
+
 whatsapp_link = (
     "https://wa.me/?text="
-    + urllib.parse.quote(share_message)
+    + urllib.parse.quote(
+        share_message
+    )
 )
+
 
 st.markdown(
     f"""
@@ -1250,7 +1290,8 @@ st.markdown(
 # FOOTER
 # ============================================================
 
-st.markdown("""
+st.markdown(
+"""
 <div style="
 text-align:center;
 padding:30px;
@@ -1269,4 +1310,6 @@ color:#587080;
 बच्चों के लिए प्यार से बनाई गई कहानियाँ ❤️
 
 </div>
-""", unsafe_allow_html=True)
+""",
+unsafe_allow_html=True
+)
