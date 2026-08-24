@@ -14,7 +14,37 @@ st.set_page_config(
     page_icon="🌈",
     layout="wide"
 )
+# ============================================================
+# GOOGLE ANALYTICS
+# ============================================================
 
+import streamlit.components.v1 as components
+
+GA_ID = st.secrets.get(
+    "GA_MEASUREMENT_ID",
+    ""
+)
+
+if GA_ID:
+    components.html(
+        f"""
+        <script async
+        src="https://www.googletagmanager.com/gtag/js?id={GA_ID}">
+        </script>
+
+        <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {{
+            dataLayer.push(arguments);
+        }}
+
+        gtag('js', new Date());
+        gtag('config', '{GA_ID}');
+        </script>
+        """,
+        height=0
+    )
 
 # ============================================================
 # SESSION STATE
