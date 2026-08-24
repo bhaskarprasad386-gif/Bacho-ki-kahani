@@ -465,7 +465,7 @@ Scene 5:
 
 IMAGE_PROMPT:
 कहानी के लिए children's storybook illustration prompt
-""""
+"""
     
 response = client.models.generate_content(
     model="gemini-3.6-flash",
