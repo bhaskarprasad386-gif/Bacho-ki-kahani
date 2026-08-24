@@ -279,10 +279,26 @@ with c3:
     language = st.selectbox(
         "🌐 भाषा",
         [
-            "सरल हिंदी",
-            "हिंदी",
-            "Hinglish",
-            "English"
+         "सरल हिंदी",
+        "हिंदी",
+        "Hinglish",
+        "English",
+        "खोरठा (Khortha)",
+        "বাংলা (Bangla)",
+        "मराठी (Marathi)",
+        "ગુજરાતી (Gujarati)",
+        "ਪੰਜਾਬੀ (Punjabi)",
+        "தமிழ் (Tamil)",
+        "తెలుగు (Telugu)",
+        "ಕನ್ನಡ (Kannada)",
+        "മലയാളം (Malayalam)",
+        "ଓଡ଼ିଆ (Odia)",
+        "অসমীয়া (Assamese)",
+        "नेपाली (Nepali)",
+        "اردو (Urdu)"
+            
+            
+       
         ]
     )
 
