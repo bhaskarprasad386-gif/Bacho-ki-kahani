@@ -1,0 +1,195 @@
+import streamlit as st
+import streamlit.components.v1 as components
+
+# ============================================================
+# PHONIC PICTURE DATA
+# ============================================================
+
+PHONICS = [
+    ("A", "Apple", "https://commons.wikimedia.org/wiki/Special:FilePath/Red_Apple.jpg"),
+    ("B", "Ball", "https://commons.wikimedia.org/wiki/Special:FilePath/Football.jpg"),
+    ("C", "Cat", "https://commons.wikimedia.org/wiki/Special:FilePath/Cat03.jpg"),
+    ("D", "Dog", "https://commons.wikimedia.org/wiki/Special:FilePath/Dog.jpg"),
+    ("E", "Egg", "https://commons.wikimedia.org/wiki/Special:FilePath/Chicken_egg.jpg"),
+    ("F", "Fish", "https://commons.wikimedia.org/wiki/Special:FilePath/Fish.jpg"),
+    ("G", "Goat", "https://commons.wikimedia.org/wiki/Special:FilePath/Goat.jpg"),
+    ("H", "Hat", "https://commons.wikimedia.org/wiki/Special:FilePath/Top_hat.jpg"),
+    ("I", "Ice Cream", "https://commons.wikimedia.org/wiki/Special:FilePath/Ice_cream.jpg"),
+    ("J", "Juice", "https://commons.wikimedia.org/wiki/Special:FilePath/Orange_juice_1.jpg"),
+    ("K", "Kite", "https://commons.wikimedia.org/wiki/Special:FilePath/Kite.jpg"),
+    ("L", "Lion", "https://commons.wikimedia.org/wiki/Special:FilePath/Lion.jpg"),
+    ("M", "Mango", "https://commons.wikimedia.org/wiki/Special:FilePath/Mango.jpg"),
+    ("N", "Nest", "https://commons.wikimedia.org/wiki/Special:FilePath/Bird_nest.jpg"),
+    ("O", "Orange", "https://commons.wikimedia.org/wiki/Special:FilePath/Orange-Fruit-Pieces.jpg"),
+    ("P", "Parrot", "https://commons.wikimedia.org/wiki/Special:FilePath/Parrot.jpg"),
+    ("Q", "Queen", "https://commons.wikimedia.org/wiki/Special:FilePath/Queen_Elizabeth_II.jpg"),
+    ("R", "Rabbit", "https://commons.wikimedia.org/wiki/Special:FilePath/Rabbit.jpg"),
+    ("S", "Sun", "https://commons.wikimedia.org/wiki/Special:FilePath/Sun.jpg"),
+    ("T", "Tiger", "https://commons.wikimedia.org/wiki/Special:FilePath/Tiger.jpg"),
+    ("U", "Umbrella", "https://commons.wikimedia.org/wiki/Special:FilePath/Umbrella.jpg"),
+    ("V", "Van", "https://commons.wikimedia.org/wiki/Special:FilePath/Volkswagen_T2_van.jpg"),
+    ("W", "Watch", "https://commons.wikimedia.org/wiki/Special:FilePath/Wristwatch.jpg"),
+    ("X", "Xylophone", "https://commons.wikimedia.org/wiki/Special:FilePath/Xylophone.jpg"),
+    ("Y", "Yak", "https://commons.wikimedia.org/wiki/Special:FilePath/Yak.jpg"),
+    ("Z", "Zebra", "https://commons.wikimedia.org/wiki/Special:FilePath/Zebra.jpg"),
+]
+
+
+# ============================================================
+# PHONIC PICTURE PAGE
+# ============================================================
+
+def show_phonic_picture():
+
+    st.markdown(
+        """
+        <style>
+
+        .phonic-title {
+            text-align: center;
+            font-size: 38px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .phonic-subtitle {
+            text-align: center;
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        '<div class="phonic-title">🔤 Phonic Picture</div>',
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        '<div class="phonic-subtitle">'
+        'Picture पर tap करें और word सुनें'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    # --------------------------------------------------------
+    # 4 CARDS PER ROW
+    # --------------------------------------------------------
+
+    for row_start in range(0, len(PHONICS), 4):
+
+        row = PHONICS[row_start:row_start + 4]
+
+        cols = st.columns(4)
+
+        for col, item in zip(cols, row):
+
+            letter, word, image_url = item
+
+            with col:
+
+                # ------------------------------------------------
+                # CLICKABLE PICTURE
+                # Browser की अपनी speech आवाज़ इस्तेमाल होगी
+                # ------------------------------------------------
+
+                html = f"""
+                <div style="
+                    background:white;
+                    border-radius:22px;
+                    padding:12px;
+                    margin-bottom:20px;
+                    text-align:center;
+                    border:2px solid #eeeeee;
+                    box-shadow:0 4px 12px rgba(0,0,0,0.10);
+                ">
+
+                    <div style="
+                        font-size:48px;
+                        font-weight:900;
+                        margin-bottom:5px;
+                    ">
+                        {letter}
+                    </div>
+
+                    <button
+                        onclick="speakWord('{word}')"
+                        style="
+                            border:none;
+                            background:white;
+                            cursor:pointer;
+                            width:100%;
+                            padding:0;
+                        "
+                    >
+
+                        <img
+                            src="{image_url}"
+                            style="
+                                width:100%;
+                                height:170px;
+                                object-fit:contain;
+                                border-radius:15px;
+                            "
+                        >
+
+                    </button>
+
+                    <div style="
+                        font-size:25px;
+                        font-weight:700;
+                        margin-top:10px;
+                    ">
+                        {word}
+                    </div>
+
+                    <div style="
+                        font-size:17px;
+                        color:#777;
+                        margin-top:5px;
+                    ">
+                        🔊 Tap Picture
+                    </div>
+
+                </div>
+
+                <script>
+                function speakWord(text) {{
+
+                    if ('speechSynthesis' in window) {{
+
+                        window.speechSynthesis.cancel();
+
+                        var speech =
+                            new SpeechSynthesisUtterance(text);
+
+                        speech.lang = 'en-US';
+
+                        speech.rate = 0.85;
+
+                        speech.pitch = 1.0;
+
+                        speech.volume = 1.0;
+
+                        window.speechSynthesis.speak(speech);
+
+                    }}
+
+                }}
+                </script>
+                """
+
+                components.html(
+                    html,
+                    height=330,
+                    scrolling=False
+                )
+
+
+# ============================================================
+# END
+# ============================================================
